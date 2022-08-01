@@ -21,14 +21,20 @@ class App extends React.Component {
       loading: false,
       loginName: '',
       buttonLoginDisabled: true,
+      searchArtist: '',
+      buttonSearchIsDisabled: true,
     };
   }
 
   onInputChange({ target: { name, value } }) {
     this.setState({ [name]: value }, () => {
-      const { loginName } = this.state;
-      const minCharacter = 3;
-      this.setState({ buttonLoginDisabled: loginName.length < minCharacter });
+      const { loginName, searchArtist } = this.state;
+      const minCharacterLoginName = 3;
+      const minCharacterSearchArtis = 2;
+      this.setState({
+        buttonSearchIsDisabled: (searchArtist.length < minCharacterSearchArtis),
+        buttonLoginDisabled: (loginName.length < minCharacterLoginName),
+      });
     });
   }
 
@@ -41,7 +47,14 @@ class App extends React.Component {
   }
 
   render() {
-    const { loginName, buttonLoginDisabled, loading } = this.state;
+    const {
+      loginName,
+      buttonLoginDisabled,
+      loading,
+      searchArtist,
+      buttonSearchIsDisabled,
+    } = this.state;
+
     return (
       <BrowserRouter>
         <Switch>
@@ -56,7 +69,21 @@ class App extends React.Component {
               onClickButtonLogin={ this.onClickButtonLogin }
             />) }
           />
-          { loading ? <Loading /> : <Route exact path="/search" component={ Search } /> }
+          { loading
+            ? <Loading />
+            : (
+              <Route
+                exact
+                path="/search"
+                render={ (props) => (
+                  <Search
+                    { ...props }
+                    searchArtist={ searchArtist }
+                    onInputChange={ this.onInputChange }
+                    buttonSearchIsDisabled={ buttonSearchIsDisabled }
+                  />
+                ) }
+              />) }
           <Route exact path="/album/:id" component={ Album } />
           <Route exact path="/favorites" component={ Favorites } />
           <Route exact path="/profile" component={ Profile } />
