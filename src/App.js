@@ -21,18 +21,14 @@ class App extends React.Component {
       loading: false,
       loginName: '',
       buttonLoginDisabled: true,
-      searchArtist: '',
-      buttonSearchIsDisabled: true,
     };
   }
 
   onInputChange({ target: { name, value } }) {
     this.setState({ [name]: value }, () => {
-      const { loginName, searchArtist } = this.state;
+      const { loginName } = this.state;
       const minCharacterLoginName = 3;
-      const minCharacterSearchArtis = 2;
       this.setState({
-        buttonSearchIsDisabled: (searchArtist.length < minCharacterSearchArtis),
         buttonLoginDisabled: (loginName.length < minCharacterLoginName),
       });
     });
@@ -51,8 +47,6 @@ class App extends React.Component {
       loginName,
       buttonLoginDisabled,
       loading,
-      searchArtist,
-      buttonSearchIsDisabled,
     } = this.state;
 
     return (
@@ -75,14 +69,7 @@ class App extends React.Component {
               <Route
                 exact
                 path="/search"
-                render={ (props) => (
-                  <Search
-                    { ...props }
-                    searchArtist={ searchArtist }
-                    onInputChange={ this.onInputChange }
-                    buttonSearchIsDisabled={ buttonSearchIsDisabled }
-                  />
-                ) }
+                render={ (props) => <Search { ...props } /> }
               />) }
           <Route exact path="/album/:id" component={ Album } />
           <Route exact path="/favorites" component={ Favorites } />
