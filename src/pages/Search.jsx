@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Loading from '../components/Loading';
 import searchAlbumsAPI from '../services/searchAlbumsAPI';
+import CardAlbum from '../components/CardAlbum';
 
 class Search extends Component {
   constructor() {
@@ -13,6 +15,7 @@ class Search extends Component {
     this.state = {
       loading: false,
       searchArtist: '',
+      researchedArtist: '',
       buttonSearchIsDisabled: true,
       result: null,
     };
@@ -36,6 +39,7 @@ class Search extends Component {
         const result = await searchAlbumsAPI(searchArtist);
 
         this.setState({
+          researchedArtist: searchArtist,
           searchArtist: '',
           result,
           loading: false,
@@ -49,6 +53,7 @@ class Search extends Component {
       loading,
       buttonSearchIsDisabled,
       searchArtist,
+      researchedArtist,
       result,
     } = this.state;
 
@@ -76,8 +81,30 @@ class Search extends Component {
               </button>
             </div>
           ) }
+        { result && (<h2>{`Resultado de álbuns de: ${researchedArtist}`}</h2>) }
         <section>
-          <h2>{`Resultado de álbuns de: ${searchArtist}`}</h2>
+          { result && ((!result.length)
+            ? (<p>Nenhum álbum foi encontrado</p>)
+            : (
+              result.map(({
+                collectionId,
+                artistName,
+                collectionName,
+                artworkUrl100,
+              }) => (
+                <Link
+                  to={ `/album/${collectionId}` }
+                  key={ collectionId }
+                  data-testid={ `link-to-album-${collectionId}` }
+                >
+                  <CardAlbum
+                    artistName={ artistName }
+                    collectionName={ collectionName }
+                    img={ artworkUrl100 }
+                  />
+                </Link>
+              ))
+            )) }
         </section>
         shearch
       </section>
