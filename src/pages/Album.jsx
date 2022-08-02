@@ -3,7 +3,7 @@ import propTypes from 'prop-types';
 import Header from '../components/Header';
 import getMusics from '../services/musicsAPI';
 import MusicCard from '../components/MusicCard';
-import { addSong } from '../services/favoriteSongsAPI';
+import { addSong, getFavoriteSongs } from '../services/favoriteSongsAPI';
 import Loading from '../components/Loading';
 
 class Album extends Component {
@@ -17,36 +17,43 @@ class Album extends Component {
       result: null,
       artistName: '',
       collectionName: '',
-      favoritesList: [],
+      favoritesListId: [],
     };
   }
 
   componentDidMount() {
     const { match: { params: { id } } } = this.props;
-    this.setState({}, async () => {
+    this.setState({ loading: true }, async () => {
       const result = await getMusics(id);
       const { artistName, collectionName } = result[0];
+      const favoritesList = await getFavoriteSongs();
+      const favoritesListId = favoritesList.map(({ trackId }) => trackId);
 
-      this.setState({ result, artistName, collectionName });
+      this.setState({
+        result,
+        artistName,
+        collectionName,
+        favoritesListId,
+        loading: false });
     });
   }
 
   onFavoriteChange({ target: { id } }) {
     this.setState({ loading: true }, async () => {
-      const { result, favoritesList } = this.state;
+      const { result, favoritesListId } = this.state;
       const track = result.slice(1).find(({ trackId }) => trackId === Number(id));
       console.log(track);
       await addSong(track);
 
       this.setState({
         loading: false,
-        favoritesList: [...favoritesList, Number(id)],
+        favoritesListId: [...favoritesListId, Number(id)],
       });
     });
   }
 
   render() {
-    const { result, artistName, collectionName, loading, favoritesList } = this.state;
+    const { result, artistName, collectionName, loading, favoritesListId } = this.state;
 
     return (
       <section data-testid="page-album">
@@ -73,7 +80,7 @@ class Album extends Component {
                         trackId={ trackId }
                         previewUrl={ previewUrl }
                         favorited={
-                          favoritesList
+                          favoritesListId
                             .some((id) => trackId === id)
                         }
                         onFavoriteChange={ this.onFavoriteChange }
