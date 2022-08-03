@@ -3,7 +3,7 @@ import propTypes from 'prop-types';
 import Header from '../components/Header';
 import getMusics from '../services/musicsAPI';
 import MusicCard from '../components/MusicCard';
-import { addSong, getFavoriteSongs } from '../services/favoriteSongsAPI';
+import { addSong, getFavoriteSongs, removeSong } from '../services/favoriteSongsAPI';
 import Loading from '../components/Loading';
 
 class Album extends Component {
@@ -38,16 +38,23 @@ class Album extends Component {
     });
   }
 
-  onFavoriteChange({ target: { id } }) {
+  onFavoriteChange({ target: { id, checked } }) {
     this.setState({ loading: true }, async () => {
       const { result, favoritesListId } = this.state;
       const track = result.slice(1).find(({ trackId }) => trackId === Number(id));
-      console.log(track);
-      await addSong(track);
+      let favoritesList;
+      if (checked) {
+        favoritesList = [...favoritesListId, Number(id)];
+        await addSong(track);
+      } else {
+        favoritesList = favoritesListId.slice(1)
+          .filter(({ trackId }) => trackId !== Number(id));
+        await removeSong(track);
+      }
 
       this.setState({
         loading: false,
-        favoritesListId: [...favoritesListId, Number(id)],
+        favoritesListId: favoritesList,
       });
     });
   }
