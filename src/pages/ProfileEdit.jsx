@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Redirect } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import Loading from '../components/Loading';
 import Header from '../components/Header';
 import { getUser, updateUser } from '../services/userAPI';
@@ -32,7 +32,6 @@ class ProfileEdit extends Component {
         image,
         description,
         loading: false,
-        concluded: false,
       });
     });
   }
@@ -53,14 +52,15 @@ class ProfileEdit extends Component {
   }
 
   onClickButtonSave() {
-    this.setState({ loading: true }, async () => {
+    this.setState({}, async () => {
       const { name, email, image, description } = this.state;
       await updateUser({ name, email, image, description });
+      const { history } = this.props;
 
-      this.setState({
-        loading: false,
-        concluded: true,
-      });
+      history.push('/profile');
+      // this.setState({
+      //   loading: false,
+      // });
     });
   }
 
@@ -72,7 +72,6 @@ class ProfileEdit extends Component {
       email,
       image,
       description,
-      concluded,
     } = this.state;
     return (
       <section data-testid="page-profile-edit">
@@ -134,10 +133,15 @@ class ProfileEdit extends Component {
               </form>
             )
         }
-        { concluded && <Redirect to="/profile" /> }
       </section>
     );
   }
 }
+
+ProfileEdit.propTypes = {
+  history: PropTypes.shape({
+    push: PropTypes.func.isRequired,
+  }).isRequired,
+};
 
 export default ProfileEdit;
